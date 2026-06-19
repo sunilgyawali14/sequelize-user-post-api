@@ -4,7 +4,12 @@ import Post from "../post/post.model.js";
 const getAllUsers = async (req, res) => {
   try {
     const users = await User.findAll({
-      include: [{ model: Post, as: "posts" }],
+      include: [
+        {
+          model: Post,
+          as: "posts",
+        },
+      ],
     });
 
     return res.status(200).json({
@@ -14,7 +19,10 @@ const getAllUsers = async (req, res) => {
     });
   } catch (error) {
     console.error("Get All Users Error:", error);
-    return res.status(500).json({ message: "Failed to fetch users.", error: error.message });
+    return res.status(500).json({
+      message: "Failed to fetch users.",
+      error: error.message,
+    });
   }
 };
 
@@ -37,7 +45,9 @@ const createUser = async (req, res) => {
     });
   } catch (error) {
     console.error("Create User Error:", error);
-    return res.status(500).json({ message: "Failed to create user.", error: error.message });
+    return res
+      .status(500)
+      .json({ message: "Failed to create user.", error: error.message });
   }
 };
 
@@ -46,17 +56,31 @@ const getUserById = async (req, res) => {
     const { id } = req.params;
 
     const user = await User.findByPk(id, {
-      include: [{ model: Post, as: "posts" }],
+      include: [
+        {
+          model: Post,
+          as: "posts",
+        },
+      ],
     });
 
     if (!user) {
-      return res.status(404).json({ message: "User not found." });
+      return res.status(404).json({
+        message: "User not found.",
+      });
     }
 
-    return res.status(200).json({ message: "User fetched successfully.", user, data: { user } });
+    return res.status(200).json({
+      message: "User fetched successfully.",
+      user,
+      data: { user },
+    });
   } catch (error) {
     console.error("Get User Error:", error);
-    return res.status(500).json({ message: "Unable to fetch user.", error: error.message });
+    return res.status(500).json({
+      message: "Unable to fetch user.",
+      error: error.message,
+    });
   }
 };
 
@@ -68,15 +92,28 @@ const updateUser = async (req, res) => {
     const user = await User.findByPk(id);
 
     if (!user) {
-      return res.status(404).json({ message: "User not found." });
+      return res.status(404).json({
+        message: "User not found.",
+      });
     }
 
-    await user.update({ name, email, age });
+    await user.update({
+      name,
+      email,
+      age,
+    });
 
-    return res.status(200).json({ message: "User updated successfully.", user, data: { user } });
+    return res.status(200).json({
+      message: "User updated successfully.",
+      user,
+      data: { user },
+    });
   } catch (error) {
     console.error("Update User Error:", error);
-    return res.status(500).json({ message: "Unable to update user.", error: error.message });
+    return res.status(500).json({
+      message: "Unable to update user.",
+      error: error.message,
+    });
   }
 };
 
@@ -84,16 +121,25 @@ const deleteUser = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const deletedRows = await User.destroy({ where: { id } });
+    const deletedRows = await User.destroy({
+      where: { id },
+    });
 
     if (!deletedRows) {
-      return res.status(404).json({ message: "User not found." });
+      return res.status(404).json({
+        message: "User not found.",
+      });
     }
-
-    return res.status(200).json({ message: "User deleted successfully.", data: { id } });
+    return res.status(200).json({
+      message: "User deleted successfully.",
+      data: { id },
+    });
   } catch (error) {
     console.error("Delete User Error:", error);
-    return res.status(500).json({ message: "Unable to delete user.", error: error.message });
+    return res.status(500).json({
+      message: "Unable to delete user.",
+      error: error.message,
+    });
   }
 };
 
