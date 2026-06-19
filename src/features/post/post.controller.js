@@ -1,10 +1,8 @@
 import Post from "./post.model.js";
 import User from "../users/user.model.js";
 
-
 const getAllPosts = async (req, res) => {
   try {
-    // DB Call: Fetch all posts with their associated user
     const posts = await Post.findAll({
       include: [
         {
@@ -34,7 +32,6 @@ const getAllPosts = async (req, res) => {
   }
 };
 
-
 const getPostById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -59,35 +56,26 @@ const getPostById = async (req, res) => {
 
 const createPost = async (req, res) => {
   try {
-    const { title, content, userId } = req.body;
+    const { title, content } = req.body;
+    const userId = req.user?.id;
 
-    // Validate required fields
-    if (!title || !content || !userId) {
+    if (!title || !content) {
       return res.status(400).json({
-        message: "Title, content, and userId are required.",
+        message: "Title and content are required.",
       });
     }
 
-    // Check if user exists
-    const user = await User.findByPk(userId);
-
-    if (!user) {
-      return res.status(404).json({
-        message: "User not found.",
+    if (!userId) {
+      return res.status(401).json({
+        message: "Authentication required to create a post.",
       });
     }
 
-    // Create post
     const newPost = await Post.create({
       title,
       content,
       userId,
     });
-    if (!newPost) {
-      return res.status(500).json({
-        message: "Failed to create post.",
-      });
-    }
 
     return res.status(201).json({
       message: "Post created successfully.",
@@ -109,21 +97,18 @@ const createPost = async (req, res) => {
 const updatePost = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, content, userId } = req.body;
+    const { title, content } = req.body;
 
     const post = await Post.findByPk(id);
     if (!post) {
       return res.status(404).json({ message: "Post not found." });
     }
 
-    if (userId) {
-      const user = await User.findByPk(userId);
-      if (!user) {
-        return res.status(404).json({ message: "User not found." });
-      }
+    if (post.userId !== req.user?.id) {
+      return res.status(403).json({ message: "You are not authorized to update this post." });
     }
 
-    await post.update({ title, content, userId });
+    await post.update({ title, content });
 
     return res.status(200).json({
       message: "Post updated successfully.",
@@ -139,11 +124,17 @@ const updatePost = async (req, res) => {
 const deletePost = async (req, res) => {
   try {
     const { id } = req.params;
-    const deletedRows = await Post.destroy({ where: { id } });
+    const post = await Post.findByPk(id);
 
-    if (!deletedRows) {
+    if (!post) {
       return res.status(404).json({ message: "Post not found." });
     }
+
+    if (post.userId !== req.user?.id) {
+      return res.status(403).json({ message: "You are not authorized to delete this post." });
+    }
+
+    await post.destroy();
 
     return res.status(200).json({
       message: "Post deleted successfully.",

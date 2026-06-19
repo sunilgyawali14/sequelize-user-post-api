@@ -1,4 +1,5 @@
 import express from "express";
+import authenticate from "../../middleware/auth.middleware.js";
 import {
   createPost,
   getAllPosts,
@@ -11,8 +12,8 @@ const router = express.Router();
 
 router.get("/", getAllPosts);
 router.get("/:id", getPostById);
-router.post("/", createPost);
-router.put("/:id", updatePost);
-router.delete("/:id", deletePost);
+router.post("/", authenticate, createPost);
+router.put("/:id", authenticate, updatePost);
+router.delete("/:id", authenticate, deletePost);
 
 export default router;

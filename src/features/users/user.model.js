@@ -21,6 +21,10 @@ const User = sequelize.define(
         isEmail: true,
       },
     },
+    password: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
     age: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -29,6 +33,11 @@ const User = sequelize.define(
   {
     tableName: "users",
     timestamps: true,
+    defaultScope: {
+      attributes: {
+        exclude: ["password"],
+      },
+    },
   }
 );
 export default User;
